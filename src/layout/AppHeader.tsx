@@ -1,11 +1,11 @@
 "use client";
 import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
 import NotificationDropdown from "@/components/header/NotificationDropdown";
-import UserDropdown from "@/components/header/UserDropdown";
 import { useSidebar } from "@/context/SidebarContext";
+import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState ,useEffect,useRef} from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
@@ -25,6 +25,8 @@ const AppHeader: React.FC = () => {
   };
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const { user } = useUser();
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key === "k") {
@@ -41,7 +43,7 @@ const AppHeader: React.FC = () => {
   }, []);
 
   return (
-    <header className="sticky top-0 flex w-full bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
+    <header className="sticky top-0 flex w-full bg-white border-gray-200 z-50 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
       <div className="flex flex-col items-center justify-between grow lg:flex-row lg:px-6">
         <div className="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
           <button
@@ -165,11 +167,32 @@ const AppHeader: React.FC = () => {
             <ThemeToggleButton />
             {/* <!-- Dark Mode Toggler --> */}
 
-           <NotificationDropdown /> 
+            <NotificationDropdown /> 
             {/* <!-- Notification Menu Area --> */}
           </div>
           {/* <!-- User Area --> */}
-          <UserDropdown /> 
+          <div className="flex items-center gap-4">
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="px-4 py-2 rounded-lg bg-brand-500 text-white font-semibold hover:bg-brand-600 transition shadow-sm">
+                  Sign in
+                </button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button className="px-4 py-2 rounded-lg border border-brand-500 text-brand-500 font-semibold hover:bg-brand-50 transition shadow-sm">
+                  Sign up
+                </button>
+              </SignUpButton>
+            </SignedOut>
+            <SignedIn>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[120px]">
+                  {user?.fullName ?? user?.username ?? user?.primaryEmailAddress?.emailAddress}
+                </span>
+                <UserButton afterSignOutUrl="/" appearance={{ elements: { userButtonPopoverCard: 'z-[1000]' } }} />
+              </div>
+            </SignedIn>
+          </div>
     
         </div>
       </div>
